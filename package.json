@@ -1,11 +1,10 @@
 {
-  "name": "aidoubts-site",
+  "name": "aidoubts-working",
   "version": "1.0.0",
-  "private": true,
   "engines": {
-    "node": "18.x"
+    "node": "24.x"
   },
   "dependencies": {
-    "node-fetch": "^2.6.7"
+    "node-fetch": "2.6.7"
   }
 }
