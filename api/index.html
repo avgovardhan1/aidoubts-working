@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>AI Doubts - Home</title>
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body class="dark">
+<header class="header">
+  <div class="logo">AI Doubts</div>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/categories.html">Categories</a>
+    <a href="/about.html">About</a>
+    <a href="/contact.html" class="ask-btn">Ask Doubt</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-text">
+    <h1>Ask Any Doubt.<br/>Get Instant AI Answers.</h1>
+    <p>Get help with coding, projects, exams and more — 24/7.</p>
+    <div class="search-bar">
+      <input id="doubtInput" type="text" placeholder="Type your doubt here..." />
+      <button id="askBtn" class="primary-btn">Ask</button>
+    </div>
+    <div id="status" style="margin-top:12px;color:#9CA3AF"></div>
+  </div>
+  <div class="hero-illustration" aria-hidden="true"></div>
+</section>
+
+<section class="features">
+  <div class="card">⚡ <h3>Instant Answers</h3><p>Clear responses within seconds.</p></div>
+  <div class="card">🤖 <h3>Smart AI</h3><p>Understands your question deeply.</p></div>
+  <div class="card">🎯 <h3>Multi-Subject</h3><p>Coding, SQL, ML, interview prep.</p></div>
+</section>
+
+<section class="categories">
+  <h2>Popular Categories</h2>
+  <div class="grid">
+    <a class="cat-card" href="#"> <h3>💻 Programming</h3><p>Java, Python, C, & more.</p></a>
+    <a class="cat-card" href="#"> <h3>🌐 Web Dev</h3><p>HTML, CSS, JS, React.</p></a>
+    <a class="cat-card" href="#"> <h3>🗄️ Databases</h3><p>SQL, Joins, Optimization.</p></a>
+    <a class="cat-card" href="#"> <h3>🤖 AI & ML</h3><p>Models, Training, Concepts.</p></a>
+    <a class="cat-card" href="#"> <h3>🔐 Cybersecurity</h3><p>Basics & ethical info.</p></a>
+    <a class="cat-card" href="#"> <h3>🎤 Interview Prep</h3><p>Top questions explained.</p></a>
+  </div>
+</section>
+
+<section class="chat-section">
+  <div class="chat-wrap">
+    <div class="chat-window" id="chatWindow" aria-live="polite"></div>
+    <div class="composer">
+      <textarea id="message" placeholder="Type your question and press Send"></textarea>
+      <button id="send" class="primary-btn">Send</button>
+    </div>
+    <div style="font-size:13px;color:#9CA3AF;margin-top:8px">Note: Chat requires an API key configured on the server.</div>
+  </div>
+</section>
+
+<footer class="footer"><p>© 2025 AI Doubts</p></footer>
+
+<script>
+const statusEl = document.getElementById('status');
+const askBtn = document.getElementById('askBtn');
+const input = document.getElementById('doubtInput');
+const chatWindow = document.getElementById('chatWindow');
+const sendBtn = document.getElementById('send');
+const messageInput = document.getElementById('message');
+
+function appendMessage(who, text) {
+  const msg = document.createElement('div');
+  msg.className = 'bubble ' + (who === 'user' ? 'user' : 'ai');
+  msg.innerHTML = text.replace(/\n/g, '<br/>');
+  chatWindow.appendChild(msg);
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+}
+
+async function sendQuestion(text) {
+  appendMessage('user', text);
+  appendMessage('ai', '…thinking…');
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ question: text })
+    });
+    const data = await res.json();
+    // remove the '...thinking...' message
+    const thinking = Array.from(chatWindow.querySelectorAll('.bubble.ai')).find(b=>b.textContent.includes('…thinking…'));
+    if (thinking) thinking.remove();
+    if (data.error) {
+      appendMessage('ai', 'Error: ' + data.error);
+    } else {
+      appendMessage('ai', data.answer || 'No answer returned.');
+    }
+  } catch (err) {
+    appendMessage('ai', 'Network error: ' + err.message);
+  }
+}
+
+askBtn?.addEventListener('click', ()=> {
+  const q = input.value.trim();
+  if (!q) return;
+  sendQuestion(q);
+  input.value = '';
+});
+
+sendBtn?.addEventListener('click', ()=> {
+  const q = messageInput.value.trim();
+  if (!q) return;
+  sendQuestion(q);
+  messageInput.value = '';
+});
+</script>
+</body>
+</html>
